@@ -2,7 +2,7 @@
 
 Split an image into bit planes
 
-![Example Image](example.png)
+[![Example Image](example.png)](https://consto.uk/2020/07/07/image-bit-planes)
 
 ## Usage
 
