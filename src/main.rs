@@ -40,6 +40,11 @@ fn main() -> Result<(), String> {
                 .default_value("000000"),
         )
         .arg(
+            clap::Arg::with_name("RGBA")
+                .long("rgba")
+                .help("Use red, green, blue, and black for colors"),
+        )
+        .arg(
             clap::Arg::with_name("VERBOSE")
                 .short("v")
                 .multiple(true)
@@ -57,6 +62,7 @@ fn main() -> Result<(), String> {
     let background = hex_to_rgb(matches.value_of("BACKGROUND").unwrap_or(""))
         .ok_or("Invalid background color")?;
     let verbose = matches.is_present("VERBOSE");
+    let is_rgba = matches.is_present("RGBA");
 
     if verbose {
         println!("Opening {} for reading", input_filename)
@@ -80,6 +86,20 @@ fn main() -> Result<(), String> {
     // Do the work
     for (x, y, pixel) in input.pixels() {
         for i in 0..channel_count {
+            let current_foreground = if is_rgba {
+                if i == 0 {
+                    Rgba([255, 0, 0, 255])
+                } else if i == 1 {
+                    Rgba([0, 255, 0, 255])
+                } else if i == 2 {
+                    Rgba([0, 0, 255, 255])
+                } else {
+                    Rgba([0, 0, 0, 255])
+                }
+            } else {
+                foreground
+            };
+
             for j in 0..bits_per_subpixel {
                 output.put_pixel(
                     if flip_x {
@@ -93,7 +113,7 @@ fn main() -> Result<(), String> {
                         y + i * height
                     },
                     if ((pixel.channels()[i as usize]) & (1 << j)) != 0 {
-                        foreground
+                        current_foreground
                     } else {
                         background
                     },
